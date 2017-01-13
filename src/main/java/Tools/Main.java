@@ -13,6 +13,9 @@ import java.io.IOException;
 import java.net.URI;
 
 
+//Use GSON for jsons
+//JAudioTagger for music
+
 //Link link = Link.fromUri("--header \"Accept: application/json\" \"https://vocadb.net/api/songs\"").build();
 //target = client.target(link).queryParam("query","Crescent Moon Rider");
 /**
@@ -38,7 +41,7 @@ public class Main {
         ResteasyWebTarget target = client.target("http://vocadb.net/api/songs").
                 queryParam("query", "Crescent Moon Rider").
                 queryParam("preferAccurateMatches","true").queryParam("lang","English");
-        
+
         Response response = target.request(MediaType.APPLICATION_JSON).get();
         String value = response.readEntity(String.class);
         System.out.println(value);
