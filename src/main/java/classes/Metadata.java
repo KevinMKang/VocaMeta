@@ -9,6 +9,16 @@ public class Metadata {
     public String publishDate;
     public int lengthSeconds;
 
+    public String getThumbUrl() {
+        return thumbUrl;
+    }
+
+    public int getLengthSeconds() {
+        return lengthSeconds;
+    }
+
+    public String thumbUrl;
+
     public String getName(){
         return name;
     }

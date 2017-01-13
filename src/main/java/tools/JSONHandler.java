@@ -25,15 +25,14 @@ public class JSONHandler {
         ResteasyClient client = new ResteasyClientBuilder().build();
         ResteasyWebTarget target = client.target("http://vocadb.net/api/songs")
                 .queryParam("query", songName)
-                .queryParam("preferAccurateMatches","true").queryParam("lang","English")
-                .queryParam("fields","Names")
-                .queryParam("preferAccurateMatches",true)
-                .queryParam("songType","Original");
+                .queryParam("preferAccurateMatches","true")
+                .queryParam("lang","English")
+                .queryParam("songTypes","Original");
 
         Response response = target.request(MediaType.APPLICATION_JSON).get();
         json = response.readEntity(String.class);
         response.close();
-
+        System.out.println(json);
         return json;
     }
 
@@ -41,12 +40,13 @@ public class JSONHandler {
         Items items = null;
 
         Gson gson = new Gson();
+        //items = gson.fromJson(json,Items.class);
 
         JsonReader reader = null;
         try {
             reader = new JsonReader(new FileReader("testFiles/moonrider.json"));
             items = gson.fromJson(reader,Items.class);
-            //items = gson.fromJson(json,Items.class);
+
             reader.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

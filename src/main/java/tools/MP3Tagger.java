@@ -12,6 +12,8 @@ import org.jaudiotagger.tag.FieldDataInvalidException;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.images.Artwork;
+import org.jaudiotagger.tag.images.ArtworkFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +29,7 @@ public class MP3Tagger {
 
     public static File[] parseFolder(String directoryPath){
         File folder = new File(directoryPath);
+        new File(directoryPath+"taggedSongs/").mkdir();
         File[] files = folder.listFiles();
         ArrayList<File> output = new ArrayList<>();
 
@@ -35,7 +38,7 @@ public class MP3Tagger {
                 output.add(i);
             }
         }
-        return (File[])output.toArray(new File[output.size()]);
+        return output.toArray(new File[output.size()]);
     }
 
     public static void tagMP3 (Items metadatas, File songFile){
@@ -45,9 +48,8 @@ public class MP3Tagger {
         AudioFile song = null;
         try {
             song = AudioFileIO.read(songFile);
-            System.out.println(song.getTag().getFirst(FieldKey.TITLE));
             for(Metadata mData : metadatas.items){
-                if(song.getAudioHeader().getTrackLength() > (mData.lengthSeconds-5) && song.getAudioHeader().getTrackLength() < (mData.lengthSeconds+5)){
+                if(song.getAudioHeader().getTrackLength() > (mData.getLengthSeconds()-5) && song.getAudioHeader().getTrackLength() < (mData.getLengthSeconds()+5)){
                     md = mData;
                 }
             }
@@ -65,15 +67,27 @@ public class MP3Tagger {
 
         Tag tag = song.getTag();
         try {
+            tag.addField(FieldKey.ARTIST, md.getArtistString());
+            tag.addField(FieldKey.TITLE, md.getName());
+            tag.addField(FieldKey.ORIGINAL_YEAR, md.getPublishDate());
             tag.setField(FieldKey.ARTIST, md.getArtistString());
             tag.setField(FieldKey.TITLE, md.getName());
+            tag.setField(FieldKey.ORIGINAL_YEAR, md.getPublishDate().toString());
+            Artwork cover = ArtworkFactory.createLinkedArtworkFromURL(md.getThumbUrl());
+
+            System.out.println(cover.getWidth());
+            tag.addField(cover);
+            tag.setField(cover);
+
             song.setTag(tag);
-            AudioFileIO.writeAs(song, "testfiles/songs/" + md.getName());
+            AudioFileIO.writeAs(song, "testfiles/songs/taggedSongs/" + md.getName());
         } catch (FieldDataInvalidException e) {
             e.printStackTrace();
         } catch (TagException e) {
             e.printStackTrace();
         } catch (CannotWriteException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

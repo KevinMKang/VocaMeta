@@ -9,29 +9,12 @@
       "id": 1088,
       "lengthSeconds": 264,
       "name": "Crescent Moon Rider",
-      "names": [
-        {
-          "language": "Japanese",
-          "value": "三日月ライダー"
-        },
-        {
-          "language": "Romaji",
-          "value": "Mikaduki Rider"
-        },
-        {
-          "language": "Romaji",
-          "value": "Mikazuki Rider"
-        },
-        {
-          "language": "English",
-          "value": "Crescent Moon Rider"
-        }
-      ],
       "publishDate": "2010-03-24T00:00:00Z",
       "pvServices": "NicoNicoDouga, Youtube",
       "ratingScore": 6,
       "songType": "Original",
       "status": "Finished",
+      "thumbUrl": "http://tn-skr1.smilevideo.jp/smile?i=10359628",
       "version": 5
     }
   ],
