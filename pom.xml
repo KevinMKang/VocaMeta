@@ -35,6 +35,15 @@
             <artifactId>javax.ws.rs-api</artifactId>
             <version>2.0-m01</version>
         </dependency>
+
+        <dependency>
+            <groupId>org</groupId>
+            <artifactId>jaudiotagger</artifactId>
+            <version>2.2.6</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jaudiotagger-2.2.6-SNAPSHOT.jar</systemPath>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -61,7 +70,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>Tools.Main</mainClass>
+                    <mainClass>main.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>

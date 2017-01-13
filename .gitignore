@@ -1,5 +1,4 @@
 *.name
-lib/
 target/
 .idea/
 VocaMeta.iml
