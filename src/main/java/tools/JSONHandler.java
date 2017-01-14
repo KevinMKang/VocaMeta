@@ -41,10 +41,10 @@ public class JSONHandler {
 
         Gson gson = new Gson();
         items = gson.fromJson(json,Items.class);
-        ///*
+        /*
         JsonReader reader = null;
         try {
-            reader = new JsonReader(new FileReader("testFiles/tc.json"));
+            reader = new JsonReader(new FileReader("testFiles/luciddreaming.json"));
             items = gson.fromJson(reader,Items.class);
 
             reader.close();
@@ -53,9 +53,7 @@ public class JSONHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //*/
+        */
         return items;
-
-
     }
 }

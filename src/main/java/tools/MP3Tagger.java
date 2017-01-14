@@ -24,12 +24,19 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by KMFK on 2017-01-13.
  * Uses JAudioTagger to tag given mp3s and to save them. Also checks whether the given data is correct or not.
  */
 public class MP3Tagger {
+
+    private static final String MUSIC_EXTS = "([^\\s]+(\\.(?i)(mp3|wav|m4a))$)";
+
+    private static Pattern pattern = Pattern.compile(MUSIC_EXTS);
+    private static Matcher matcher;
 
     private MP3Tagger(){}
 
@@ -40,9 +47,11 @@ public class MP3Tagger {
         ArrayList<File> output = new ArrayList<>();
 
         for(File i : files){
-            if((i.getName().substring(i.getName().length()-3,i.getName().length()).equals("mp3"))){
+            matcher = pattern.matcher(i.getName());
+            if(matcher.matches()){
                 output.add(i);
             }
+
         }
         return output.toArray(new File[output.size()]);
     }
@@ -54,7 +63,7 @@ public class MP3Tagger {
         AudioFile song = null;
         try {
             song = AudioFileIO.read(songFile);
-            System.out.println(song.getAudioHeader().getTrackLength());
+
 
         } catch (TagException e) {
             e.printStackTrace();
@@ -74,10 +83,12 @@ public class MP3Tagger {
                 md = mData;
             }
         }
+        /*
         System.out.println(md.getName());
         System.out.println(md.getArtistString());
         System.out.println(md.getPublishDate());
-
+        */
+        song.setTag(song.createDefaultTag());
         Tag tag = song.getTag();
         try {
             tag.addField(FieldKey.ARTIST, md.getArtistString());
@@ -100,10 +111,7 @@ public class MP3Tagger {
                 FileUtils.deleteQuietly(tempThumb);
             }
 
-
             song.setTag(tag);
-            //song.commit();
-            //AudioFileIO.write(song);
             AudioFileIO.writeAs(song, "testfiles/songs/taggedSongs/" + md.getName());
 
 
