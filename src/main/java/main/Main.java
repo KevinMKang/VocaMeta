@@ -14,20 +14,24 @@ import tools.MP3Tagger;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         File tempDir = new File("temp");
         tempDir.mkdir();
 
         File[] files = MP3Tagger.parseFolder("testfiles/songs/");
         for(File file : files){
             String fileName = NameParser.parseName(file.getName());
+
             String json = JSONHandler.requestJSONVocaDB(fileName);
-            //String json = "";
 
             Items items = JSONHandler.parseJSONVocaDB(json);
-            MP3Tagger.tagMP3(items,file);
+            MP3Tagger.tagMP3(items, file);
         }
 
-        FileUtils.deleteDirectory(tempDir);
+        try {
+            FileUtils.deleteDirectory(tempDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
