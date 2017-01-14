@@ -20,6 +20,3 @@ After running the jar, the tagged songs will be in target/songs/taggedSongs.
 - JAudioTagger
 - RESTeasy/ JAX-RS
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for detail.
