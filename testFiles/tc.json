@@ -1,0 +1,23 @@
+﻿{
+  "items": [
+    {
+      "artistString": "40mP feat. Hatsune Miku",
+      "createDate": "2011-11-01T05:56:43",
+      "defaultName": "トリノコシティ",
+      "defaultNameLanguage": "Japanese",
+      "favoritedTimes": 15,
+      "id": 1359,
+      "lengthSeconds": 203,
+      "name": "Left Behind City",
+      "publishDate": "2010-07-29T00:00:00Z",
+      "pvServices": "NicoNicoDouga, Youtube, Piapro",
+      "ratingScore": 83,
+      "songType": "Original",
+      "status": "Finished",
+      "thumbUrl": "https://i.ytimg.com/vi/yIQDGwyJpSo/default.jpg",
+      "version": 20
+    }
+  ],
+  "term": "torinoko city",
+  "totalCount": 0
+}

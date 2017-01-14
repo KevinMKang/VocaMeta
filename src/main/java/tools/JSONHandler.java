@@ -27,24 +27,24 @@ public class JSONHandler {
                 .queryParam("query", songName)
                 .queryParam("preferAccurateMatches","true")
                 .queryParam("lang","English")
-                .queryParam("songTypes","Original");
+                .queryParam("songTypes","Original")
+                .queryParam("fields","ThumbUrl");
 
         Response response = target.request(MediaType.APPLICATION_JSON).get();
         json = response.readEntity(String.class);
         response.close();
-        System.out.println(json);
         return json;
     }
 
     public static Items parseJSONVocaDB(String json){
-        Items items = null;
+        Items items;
 
         Gson gson = new Gson();
-        //items = gson.fromJson(json,Items.class);
-
+        items = gson.fromJson(json,Items.class);
+        ///*
         JsonReader reader = null;
         try {
-            reader = new JsonReader(new FileReader("testFiles/moonrider.json"));
+            reader = new JsonReader(new FileReader("testFiles/tc.json"));
             items = gson.fromJson(reader,Items.class);
 
             reader.close();
@@ -53,8 +53,9 @@ public class JSONHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        //*/
         return items;
+
 
     }
 }

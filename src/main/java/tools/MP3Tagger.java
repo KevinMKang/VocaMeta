@@ -2,6 +2,7 @@ package tools;
 
 import classes.Items;
 import classes.Metadata;
+import org.apache.commons.io.FileUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -15,8 +16,13 @@ import org.jaudiotagger.tag.TagException;
 import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.images.ArtworkFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -48,11 +54,8 @@ public class MP3Tagger {
         AudioFile song = null;
         try {
             song = AudioFileIO.read(songFile);
-            for(Metadata mData : metadatas.items){
-                if(song.getAudioHeader().getTrackLength() > (mData.getLengthSeconds()-5) && song.getAudioHeader().getTrackLength() < (mData.getLengthSeconds()+5)){
-                    md = mData;
-                }
-            }
+            System.out.println(song.getAudioHeader().getTrackLength());
+
         } catch (TagException e) {
             e.printStackTrace();
         } catch (ReadOnlyFileException e) {
@@ -65,25 +68,46 @@ public class MP3Tagger {
             e.printStackTrace();
         }
 
+        for(Metadata mData : metadatas.items){
+            if(song.getAudioHeader().getTrackLength() > (mData.getLengthSeconds()-5) && song.getAudioHeader().getTrackLength() < (mData.getLengthSeconds()+5)){
+
+                md = mData;
+            }
+        }
+        System.out.println(md.getName());
+        System.out.println(md.getArtistString());
+        System.out.println(md.getPublishDate());
+
         Tag tag = song.getTag();
         try {
             tag.addField(FieldKey.ARTIST, md.getArtistString());
             tag.addField(FieldKey.TITLE, md.getName());
-            tag.addField(FieldKey.ORIGINAL_YEAR, md.getPublishDate());
+            tag.addField(FieldKey.YEAR, md.getPublishDate());
             tag.setField(FieldKey.ARTIST, md.getArtistString());
             tag.setField(FieldKey.TITLE, md.getName());
-            tag.setField(FieldKey.ORIGINAL_YEAR, md.getPublishDate().toString());
-            Artwork cover = ArtworkFactory.createLinkedArtworkFromURL(md.getThumbUrl());
+            tag.setField(FieldKey.YEAR, md.getPublishDate());
 
-            System.out.println(cover.getWidth());
-            tag.addField(cover);
-            tag.setField(cover);
+            BufferedImage image = ImageIO.read(new URL(md.getThumbUrl()));
+
+            if(image != null) {
+                File tempThumb = new File("temp");
+                ImageIO.write(image, "jpg", tempThumb);
+
+                Artwork cover = ArtworkFactory.createArtworkFromFile(tempThumb);
+                tag.addField(cover);
+                tag.setField(cover);
+
+                FileUtils.deleteQuietly(tempThumb);
+            }
+
 
             song.setTag(tag);
+            //song.commit();
+            //AudioFileIO.write(song);
             AudioFileIO.writeAs(song, "testfiles/songs/taggedSongs/" + md.getName());
+
+
         } catch (FieldDataInvalidException e) {
-            e.printStackTrace();
-        } catch (TagException e) {
             e.printStackTrace();
         } catch (CannotWriteException e) {
             e.printStackTrace();
