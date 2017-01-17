@@ -1,0 +1,10 @@
+needs:
+
+    drag and drop for folders and files
+    text on top of it saying to do that
+
+    prompt to select selection of japanese, english, or romaji titles
+    save to a new folder or edit current file
+        if yes
+           - select output folder
+           - new name or not

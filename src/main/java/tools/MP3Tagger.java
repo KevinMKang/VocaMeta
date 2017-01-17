@@ -39,7 +39,6 @@ public class MP3Tagger {
 
     public static File[] parseFolder(String directoryPath){
         File folder = new File(directoryPath);
-        new File(directoryPath+"taggedSongs/").mkdir();
         File[] files = folder.listFiles();
         ArrayList<File> output = new ArrayList<>();
 
@@ -73,18 +72,17 @@ public class MP3Tagger {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        System.out.println(song.getAudioHeader().getTrackLength());
         for(Metadata mData : metadatas.items){
-            if(song.getAudioHeader().getTrackLength() > (mData.getLengthSeconds()-5) && song.getAudioHeader().getTrackLength() < (mData.getLengthSeconds()+5)){
 
+
+
+
+            if(song.getAudioHeader().getTrackLength() > (mData.getLengthSeconds()-5) && song.getAudioHeader().getTrackLength() < (mData.getLengthSeconds()+5)){
                 md = mData;
             }
         }
-        /*
-        System.out.println(md.getName());
-        System.out.println(md.getArtistString());
-        System.out.println(md.getPublishDate());
-        */
+
         song.setTag(song.createDefaultTag());
         Tag tag = song.getTag();
         try {
@@ -104,12 +102,12 @@ public class MP3Tagger {
                 Artwork cover = ArtworkFactory.createArtworkFromFile(tempThumb);
                 tag.addField(cover);
                 tag.setField(cover);
-
                 FileUtils.deleteQuietly(tempThumb);
             }
 
             song.setTag(tag);
-            AudioFileIO.writeAs(song, "testfiles/songs/taggedSongs/" + md.getName());
+            song.commit();
+            //AudioFileIO.writeAs(song, "testfiles/songs/taggedSongs/" + md.getName());
 
 
         } catch (FieldDataInvalidException e) {
