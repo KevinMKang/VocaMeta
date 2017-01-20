@@ -28,7 +28,8 @@ public class JSONHandler {
                 .queryParam("preferAccurateMatches","true")
                 .queryParam("lang","English")
                 .queryParam("songTypes","Original")
-                .queryParam("fields","ThumbUrl");
+                .queryParam("fields","ThumbUrl")
+                .queryParam("user","VocaMeta");
 
         Response response = target.request(MediaType.APPLICATION_JSON).get();
         json = response.readEntity(String.class);

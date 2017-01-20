@@ -37,9 +37,10 @@ public class MP3Tagger {
 
     private MP3Tagger(){}
 
-    public static File[] parseFolder(String directoryPath){
-        File folder = new File(directoryPath);
-        File[] files = folder.listFiles();
+    public static File[] parseFolder(File directory){
+
+
+        File[] files = directory.listFiles();
         ArrayList<File> output = new ArrayList<>();
 
         for(File i : files){
@@ -52,7 +53,7 @@ public class MP3Tagger {
         return output.toArray(new File[output.size()]);
     }
 
-    public static void tagMP3 (Items metadatas, File songFile){
+    public static int tagMP3 (Items metadatas, File songFile){
 
         Metadata md = null;
 
@@ -82,7 +83,9 @@ public class MP3Tagger {
                 md = mData;
             }
         }
-
+        if (md == null){
+            return 1;
+        }
         song.setTag(song.createDefaultTag());
         Tag tag = song.getTag();
         try {
@@ -117,6 +120,8 @@ public class MP3Tagger {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return 0;
     }
 
 
