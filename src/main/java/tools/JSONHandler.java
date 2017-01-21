@@ -20,13 +20,13 @@ public class JSONHandler {
 
     private JSONHandler(){}
 
-    public static String requestJSONVocaDB(String songName){
+    public static String requestJSONVocaDB(String songName, String language){
         String json;
         ResteasyClient client = new ResteasyClientBuilder().build();
         ResteasyWebTarget target = client.target("http://vocadb.net/api/songs")
                 .queryParam("query", songName)
                 .queryParam("preferAccurateMatches","true")
-                .queryParam("lang","English")
+                .queryParam("lang",language)
                 .queryParam("songTypes","Original")
                 .queryParam("fields","ThumbUrl")
                 .queryParam("user","VocaMeta");
@@ -42,19 +42,6 @@ public class JSONHandler {
 
         Gson gson = new Gson();
         items = gson.fromJson(json,Items.class);
-        /*
-        JsonReader reader = null;
-        try {
-            reader = new JsonReader(new FileReader("testFiles/luciddreaming.json"));
-            items = gson.fromJson(reader,Items.class);
-
-            reader.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        */
         return items;
     }
 }

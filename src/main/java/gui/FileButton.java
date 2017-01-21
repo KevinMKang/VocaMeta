@@ -16,22 +16,16 @@ public class FileButton extends JButton {
     public static ArrayList<FileButton> buttonListing = new ArrayList<>();
     private boolean finished;
 
-    public FileButton(File f, ActionListener listener, JPanel panel){
+    public FileButton(File f){
         this.file = f;
-        this.setText(f.getPath() + "    " +f.getName());
+        //this.setText(f.getPath() + "    " +f.getName());
+        this.setText(f.getPath());
         this.setBorderPainted(false);
         this.setBackground(Color.white);
-        this.addActionListener(listener);
         this.finished = false;
-        panel.add(this);
         fileListing.add(f);
         buttonListing.add(this);
-    }
-
-    public void removeSelf(JPanel panel){
-        fileListing.remove(file);
-        buttonListing.remove(this);
-        panel.remove(this);
+        setHorizontalAlignment(SwingConstants.LEFT);
     }
 
     public void markDone(){
@@ -42,14 +36,11 @@ public class FileButton extends JButton {
         return this.finished;
     }
 
-    public void clearAllFinished(JPanel buttonPanel){
-        for(int i = 0; i < buttonListing.size(); i++){
-            if(buttonListing.get(i).isDone()){
-                removeSelf(buttonPanel);
-                i-=1;
-            }
-        }
+    public void removeSelf(){
+        fileListing.remove(this.file);
+        buttonListing.remove(this);
     }
+
 
     public File getFile(){
         return this.file;

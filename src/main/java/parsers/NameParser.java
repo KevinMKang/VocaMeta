@@ -8,8 +8,6 @@ public class NameParser {
 
     public static String parseName(String fileName){
         String parsedName = fileName.substring(0,fileName.length()-4);
-        parsedName = parsedName.replaceAll("_", " ");
-
         return parsedName;
     }
 }

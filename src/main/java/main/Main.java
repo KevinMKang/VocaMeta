@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import classes.Items;
 import gui.FileButton;
+import gui.LanguagePanel;
 import org.apache.commons.io.FileUtils;
 import parsers.NameParser;
 import tools.JSONHandler;
@@ -21,11 +22,10 @@ public class Main extends JFrame{
 
     private JPanel buttonPanel = new JPanel();
     private JButton start;
+    private LanguagePanel lp;
+
     private boolean started;
 
-    private enum LANGUAGES {
-        ROMAJI, ENGLISH, JAPANESE
-    }
 
     //Determines whether to save the new file in a new Folder
     private boolean newFolder = false;
@@ -40,11 +40,12 @@ public class Main extends JFrame{
     private boolean deleteOld = false;
 
 
+
     //ActionListener made specifically for fileButtons
     ActionListener fileButtonListener = new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e) {
-            ((FileButton)e.getSource()).removeSelf(buttonPanel);
+            removeFileButton((FileButton) e.getSource());
             revalidate();
             repaint();
         }
@@ -57,20 +58,21 @@ public class Main extends JFrame{
             if (!started) {
                 started = true;
                 start.setText("Working...");
-                for (FileButton files : FileButton.buttonListing) {
-                    File current = files.getFile();
-                    if (!current.isDirectory()) {
-                        tagSingleFile(current);
+                revalidate();
+                repaint();
 
-                    } else {
-                        File[] directoryContents = MP3Tagger.parseFolder(current);
-                        for (File file : directoryContents) {
-                            tagSingleFile(file);
-                        }
-                    }
-                    
-
+                for (FileButton fileButton : FileButton.buttonListing) {
+                    if(tagSingleFile(fileButton.getFile())==0)
+                        fileButton.markDone();
                 }
+
+                for(int i = 0; i < FileButton.buttonListing.size(); i++){
+                    if(FileButton.buttonListing.get(i).isDone()){
+                        removeFileButton(FileButton.buttonListing.get(i));
+                        i-=1;
+                    }
+                }
+
                 revalidate();
                 repaint();
 
@@ -80,79 +82,75 @@ public class Main extends JFrame{
         }
     };
 
+    public void removeFileButton(FileButton fb){
+        buttonPanel.remove(fb);
+        FileButton.fileListing.remove(fb.getFile());
+        FileButton.buttonListing.remove(fb);
+    }
+
     // Tags a single File, starting from an API call to VocaDB.
     public int tagSingleFile(File file){
         String fileName = NameParser.parseName(file.getName());
-        System.out.println(fileName);
-        String json = JSONHandler.requestJSONVocaDB(fileName);
-        System.out.println(json);
+        String json = JSONHandler.requestJSONVocaDB(fileName, lp.getLanguageSetting());
         Items items = JSONHandler.parseJSONVocaDB(json);
         return MP3Tagger.tagMP3(items, file);
     }
 
     //Creates a FileButton from a file and adds it to the list of files.
     public void dragAndDropFile(File f){
-        if(f.isDirectory()){
-            File[] files = MP3Tagger.parseFolder(f);
-            for(File file : files){
-                new FileButton(file,fileButtonListener,buttonPanel);
-            }
-        }else{
-            new FileButton(f,fileButtonListener,buttonPanel);
+        File[] files = MP3Tagger.parseFile(f);
+        for(File file : files){
+            FileButton fb = new FileButton(file);
+            fb.addActionListener(fileButtonListener);
+            buttonPanel.add(fb);
         }
-
         revalidate();
         repaint();
     }
 
-
-
     //Main function
     public Main(){
-
 
         started = false;
 
         start = new JButton("Start");
         start.addActionListener(startListener);
 
+        lp = new LanguagePanel();
+
         buttonPanel.setOpaque(true);
         buttonPanel.setBackground(Color.white);
         buttonPanel.setBorder(BorderFactory.createLoweredBevelBorder());
-        buttonPanel.setLayout(new GridLayout(20, 0));
+        buttonPanel.setLayout(new GridLayout(0, 1));
+
+        JScrollPane scrollPane = new JScrollPane(buttonPanel);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(20);
 
         //Filedrop Object to let area support dragging and dropping files.
         new FileDrop(buttonPanel, new FileDrop.Listener()
         {public void filesDropped(File[] files){
                 for(File f : files){
+                    File[] contents = MP3Tagger.parseFile(f);
+                    for(File file : contents){
+                        FileButton fb = new FileButton(file);
+                        fb.addActionListener(fileButtonListener);
+                        buttonPanel.add(fb);
 
-                    if(!f.isDirectory()) {
-                        if (!FileButton.fileListing.contains(f)) {
-                            dragAndDropFile(f);
-                        } else {
-                            //System.out.println(f.getPath());
-                        }
-                    }else{
-                        for(File file : MP3Tagger.parseFolder(f)){
-                            if (!FileButton.fileListing.contains(file)) {
-                                dragAndDropFile(file);
-                            } else {
-                               System.out.println(file.getPath());
-                            }
-                        }
                     }
+                    revalidate();
+                    repaint();
                 }
             }
         });
-
 
         JLabel dragInfo = new JLabel("Drag and Drop your files/folders below. Click to remove them.");
         dragInfo.setHorizontalTextPosition(SwingConstants.CENTER);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
+        panel.add(lp);
         panel.add(dragInfo, BorderLayout.CENTER);
-        panel.add(buttonPanel);
+        panel.add(scrollPane);
         panel.add(start);
         panel.setPreferredSize(new java.awt.Dimension(800, 600));
         getContentPane().add(panel);

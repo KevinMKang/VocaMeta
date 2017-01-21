@@ -30,25 +30,30 @@ import java.util.regex.Pattern;
  */
 public class MP3Tagger {
 
-    private static final String MUSIC_EXTS = "([^\\s]+(\\.(?i)(mp3|wav|m4a))$)";
+    private static final String MUSIC_EXTS = "([^.]+(\\.(?i)(mp3|wav|m4a))$)";
 
     private static Pattern pattern = Pattern.compile(MUSIC_EXTS);
     private static Matcher matcher;
 
     private MP3Tagger(){}
 
-    public static File[] parseFolder(File directory){
-
-
-        File[] files = directory.listFiles();
+    public static File[] parseFile(File file){
         ArrayList<File> output = new ArrayList<>();
+        if(!file.isDirectory()){
 
-        for(File i : files){
-            matcher = pattern.matcher(i.getName());
+            matcher = pattern.matcher(file.getName());
             if(matcher.matches()){
-                output.add(i);
+                output.add(file);
             }
-
+        }
+        else {
+            File[] files = file.listFiles();
+            for (File i : files) {
+                matcher = pattern.matcher(i.getName());
+                if (matcher.matches()) {
+                    output.add(i);
+                }
+            }
         }
         return output.toArray(new File[output.size()]);
     }
@@ -73,11 +78,8 @@ public class MP3Tagger {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(song.getAudioHeader().getTrackLength());
+
         for(Metadata mData : metadatas.items){
-
-
-
 
             if(song.getAudioHeader().getTrackLength() > (mData.getLengthSeconds()-5) && song.getAudioHeader().getTrackLength() < (mData.getLengthSeconds()+5)){
                 md = mData;
