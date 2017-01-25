@@ -11,9 +11,9 @@ VocaMeta is a small Java-based utility that automatically tags vocaloid music fo
 
 ## Executing
 
-After compilation, an executable jar will be created in the cloned repository named target. Create a folder named songs, and add your songs to it. Currently, only songs with their title + file extension will be acceped (i.e. "TITLE.mp3"). This will work regardless of language.
+After compilation, an executable jar will be created in the cloned repository named target. Open the jar, and drag and drop your files into the program and press start to begin the searching and tagging process.
 
-After running the jar, the tagged songs will be in target/songs/taggedSongs.
+The original files are tagged, new files are not created.
 
 ## Built with:
 
