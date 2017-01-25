@@ -25,7 +25,6 @@ public class JSONHandler {
         ResteasyClient client = new ResteasyClientBuilder().build();
         ResteasyWebTarget target = client.target("http://vocadb.net/api/songs")
                 .queryParam("query", songName)
-                .queryParam("preferAccurateMatches","true")
                 .queryParam("lang",language)
                 .queryParam("songTypes","Original")
                 .queryParam("fields","ThumbUrl")

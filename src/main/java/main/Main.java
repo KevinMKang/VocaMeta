@@ -1,31 +1,25 @@
 package main;
 
-import java.awt.*;
-import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-
 import classes.Items;
-import gui.FileButton;
-import gui.LanguagePanel;
+import gui.*;
 import org.apache.commons.io.FileUtils;
 import parsers.NameParser;
 import tools.JSONHandler;
 import tools.MP3Tagger;
-import gui.FileDrop;
 import javax.swing.*;
 
 public class Main extends JFrame{
 
-    private JPanel buttonPanel = new JPanel();
     private JButton start;
-    private LanguagePanel lp;
+    private LanguagePanel lPanel;
+    private TextLog log;
+    private ButtonPanel bPanel;
 
     private boolean started;
-
 
     //Determines whether to save the new file in a new Folder
     private boolean newFolder = false;
@@ -39,73 +33,48 @@ public class Main extends JFrame{
     //Whether or not to delete the old file after tagging
     private boolean deleteOld = false;
 
-
-
-    //ActionListener made specifically for fileButtons
-    ActionListener fileButtonListener = new ActionListener(){
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            removeFileButton((FileButton) e.getSource());
-            revalidate();
-            repaint();
-        }
-    };
-
     //ActionListener made for the start button
     ActionListener startListener = new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e) {
+            log.addText("Starting tagging process.\n");
+            log.updateArea();
             if (!started) {
                 started = true;
-                start.setText("Working...");
-                revalidate();
-                repaint();
 
-                for (FileButton fileButton : FileButton.buttonListing) {
-                    if(tagSingleFile(fileButton.getFile())==0)
+
+                for (FileButton fileButton : bPanel.getFileButtons()) {
+
+                    if(tagSingleFile(fileButton.getFile())==0) {
                         fileButton.markDone();
+                        log.addText(fileButton.getFileName()+ " tagged succesfully!.\n");
+
+                    }else{
+                        log.addText("Failed to tag " + fileButton.getFileName() +". Try renaming the file?\n");
+                    }
+                    log.updateArea();
                 }
 
-                for(int i = 0; i < FileButton.buttonListing.size(); i++){
-                    if(FileButton.buttonListing.get(i).isDone()){
-                        removeFileButton(FileButton.buttonListing.get(i));
+                for(int i = 0; i < bPanel.getFileButtons().size(); i++){
+                    if(bPanel.getFileButtons().get(i).isDone()){
+                        bPanel.removeFileButton(bPanel.getFileButtons().get(i));
                         i-=1;
                     }
                 }
 
                 revalidate();
                 repaint();
-
-                start.setText("Start");
                 started = false;
             }
         }
     };
 
-    public void removeFileButton(FileButton fb){
-        buttonPanel.remove(fb);
-        FileButton.fileListing.remove(fb.getFile());
-        FileButton.buttonListing.remove(fb);
-    }
-
     // Tags a single File, starting from an API call to VocaDB.
     public int tagSingleFile(File file){
         String fileName = NameParser.parseName(file.getName());
-        String json = JSONHandler.requestJSONVocaDB(fileName, lp.getLanguageSetting());
+        String json = JSONHandler.requestJSONVocaDB(fileName, lPanel.getLanguageSetting());
         Items items = JSONHandler.parseJSONVocaDB(json);
         return MP3Tagger.tagMP3(items, file);
-    }
-
-    //Creates a FileButton from a file and adds it to the list of files.
-    public void dragAndDropFile(File f){
-        File[] files = MP3Tagger.parseFile(f);
-        for(File file : files){
-            FileButton fb = new FileButton(file);
-            fb.addActionListener(fileButtonListener);
-            buttonPanel.add(fb);
-        }
-        revalidate();
-        repaint();
     }
 
     //Main function
@@ -116,47 +85,28 @@ public class Main extends JFrame{
         start = new JButton("Start");
         start.addActionListener(startListener);
 
-        lp = new LanguagePanel();
+        lPanel = new LanguagePanel();
+        log = new TextLog();
+        bPanel = new ButtonPanel();
 
-        buttonPanel.setOpaque(true);
-        buttonPanel.setBackground(Color.white);
-        buttonPanel.setBorder(BorderFactory.createLoweredBevelBorder());
-        buttonPanel.setLayout(new GridLayout(0, 1));
-
-        JScrollPane scrollPane = new JScrollPane(buttonPanel);
+        JScrollPane scrollPane = new JScrollPane(bPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(20);
-
-        //Filedrop Object to let area support dragging and dropping files.
-        new FileDrop(buttonPanel, new FileDrop.Listener()
-        {public void filesDropped(File[] files){
-                for(File f : files){
-                    File[] contents = MP3Tagger.parseFile(f);
-                    for(File file : contents){
-                        FileButton fb = new FileButton(file);
-                        fb.addActionListener(fileButtonListener);
-                        buttonPanel.add(fb);
-
-                    }
-                    revalidate();
-                    repaint();
-                }
-            }
-        });
 
         JLabel dragInfo = new JLabel("Drag and Drop your files/folders below. Click to remove them.");
         dragInfo.setHorizontalTextPosition(SwingConstants.CENTER);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
-        panel.add(lp);
-        panel.add(dragInfo, BorderLayout.CENTER);
+        panel.add(lPanel);
+        panel.add(dragInfo);
         panel.add(scrollPane);
+        panel.add(log);
         panel.add(start);
         panel.setPreferredSize(new java.awt.Dimension(800, 600));
         getContentPane().add(panel);
         setVisible(true);
         setTitle("VocaMeta");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         pack();
     }
 
@@ -164,7 +114,6 @@ public class Main extends JFrame{
 
         File tempDir = new File("temp");
         tempDir.mkdir();
-
         new Main();
 
         try {

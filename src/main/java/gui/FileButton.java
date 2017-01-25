@@ -12,8 +12,6 @@ import java.util.ArrayList;
 public class FileButton extends JButton {
     private File file;
 
-    public static ArrayList<File> fileListing = new ArrayList<>();
-    public static ArrayList<FileButton> buttonListing = new ArrayList<>();
     private boolean finished;
 
     public FileButton(File f){
@@ -23,9 +21,8 @@ public class FileButton extends JButton {
         this.setBorderPainted(false);
         this.setBackground(Color.white);
         this.finished = false;
-        fileListing.add(f);
-        buttonListing.add(this);
         setHorizontalAlignment(SwingConstants.LEFT);
+        //setMaximumSize(new Dimension(800,50));
     }
 
     public void markDone(){
@@ -35,12 +32,6 @@ public class FileButton extends JButton {
     public boolean isDone(){
         return this.finished;
     }
-
-    public void removeSelf(){
-        fileListing.remove(this.file);
-        buttonListing.remove(this);
-    }
-
 
     public File getFile(){
         return this.file;
