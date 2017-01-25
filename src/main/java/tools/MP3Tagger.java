@@ -49,6 +49,11 @@ public class MP3Tagger {
         else {
             File[] files = file.listFiles();
             for (File i : files) {
+                if(i.isDirectory()){
+                    for(File inDir : parseFile(i)){
+                        output.add(inDir);
+                    }
+                }
                 matcher = pattern.matcher(i.getName());
                 if (matcher.matches()) {
                     output.add(i);

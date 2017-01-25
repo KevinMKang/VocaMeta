@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -42,7 +43,6 @@ public class Main extends JFrame{
             if (!started) {
                 started = true;
 
-
                 for (FileButton fileButton : bPanel.getFileButtons()) {
 
                     if(tagSingleFile(fileButton.getFile())==0) {
@@ -50,7 +50,7 @@ public class Main extends JFrame{
                         log.addText(fileButton.getFileName()+ " tagged succesfully!.\n");
 
                     }else{
-                        log.addText("Failed to tag " + fileButton.getFileName() +". Try renaming the file?\n");
+                        //log.addText("Failed to tag " + fileButton.getFileName() +". Try renaming the file?\n");
                     }
                     log.updateArea();
                 }
@@ -89,8 +89,7 @@ public class Main extends JFrame{
         log = new TextLog();
         bPanel = new ButtonPanel();
 
-        JScrollPane scrollPane = new JScrollPane(bPanel);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(20);
+
 
         JLabel dragInfo = new JLabel("Drag and Drop your files/folders below. Click to remove them.");
         dragInfo.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -99,7 +98,7 @@ public class Main extends JFrame{
         panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
         panel.add(lPanel);
         panel.add(dragInfo);
-        panel.add(scrollPane);
+        panel.add(bPanel);
         panel.add(log);
         panel.add(start);
         panel.setPreferredSize(new java.awt.Dimension(800, 600));

@@ -17,59 +17,97 @@ import java.util.concurrent.Callable;
  */
 public class ButtonPanel extends JPanel {
 
+    private final JFileChooser fChooser = new JFileChooser();
+    private JPanel mainPanel;
+
     private ArrayList<File> fileListing;
     private ArrayList<FileButton> buttonListing;
+
+    private JButton fCButton;
+
+    ActionListener fileChooseListener = new ActionListener(){
+        @Override
+        public void actionPerformed(ActionEvent e){
+            int returnVal = fChooser.showOpenDialog(ButtonPanel.this);
+
+            if(returnVal == JFileChooser.APPROVE_OPTION){
+                File file = fChooser.getSelectedFile();
+                System.out.println(file.getName());
+                File[] temp = {file};
+                processFile(temp);
+            }
+        }
+    };
 
     //ActionListener made specifically for fileButtons
     ActionListener fileButtonListener = new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e) {
-
             removeFileButton((FileButton) e.getSource());
             revalidate();
             repaint();
         }
     };
 
+    public void processFile(File[] folder){
+        for(File f : folder){
+            File[] contents = MP3Tagger.parseFile(f);
+            for(File file : contents){
+                if(!fileListing.contains(file)) {
+                    FileButton fb = new FileButton(file);
+                    fb.addActionListener(fileButtonListener);
+                    addFileButton(fb);
+                }
+            }
+            revalidate();
+            repaint();
+        }
+    }
+
     public ButtonPanel(){
+        setLayout(new BorderLayout());
+
+        mainPanel = new JPanel();
+
+
+        fCButton = new JButton("Open");
+        fCButton.addActionListener(fileChooseListener);
+        add(fCButton,BorderLayout.SOUTH);
+
+        fChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 
         fileListing = new ArrayList<>();
         buttonListing = new ArrayList<>();
 
         //Filedrop Object to let area support dragging and dropping files.
-        new FileDrop(this, new FileDrop.Listener()
+        new FileDrop(mainPanel, new FileDrop.Listener()
         {public void filesDropped(File[] files){
-
-                for(File f : files){
-                    File[] contents = MP3Tagger.parseFile(f);
-                    for(File file : contents){
-                        if(!fileListing.contains(file)) {
-                            FileButton fb = new FileButton(file);
-                            fb.addActionListener(fileButtonListener);
-                            addFileButton(fb);
-
-                        }
-                    }
-                    revalidate();
-                    repaint();
-                }
+                processFile(files);
             }
         });
-        setPreferredSize(new Dimension(750,300));
-        setOpaque(true);
-        setBackground(Color.white);
+        //setMinimumSize(new Dimension(800,300));
+        //setPreferredSize(new Dimension(800,300));
+
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        //scrollPane.setPreferredSize(new Dimension(800,500));
+        scrollPane.getVerticalScrollBar().setUnitIncrement(20);
+
+        mainPanel.setOpaque(true);
+        mainPanel.setBackground(Color.white);
         setBorder(BorderFactory.createLoweredBevelBorder());
-        setLayout(new BoxLayout(this,BoxLayout.PAGE_AXIS));
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     private void addFileButton(FileButton fb){
-        add(fb);
+        mainPanel.add(fb);
         fileListing.add(fb.getFile());
         buttonListing.add(fb);
     }
 
     public void removeFileButton(FileButton fb){
-        remove(fb);
+        mainPanel.remove(fb);
         fileListing.remove(fb.getFile());
         buttonListing.remove(fb);
     }
