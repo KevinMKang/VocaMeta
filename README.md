@@ -7,7 +7,7 @@ VocaMeta is a small Java-based utility that automatically tags vocaloid music fo
 1. Clone this respository.
 2. Navigate into it using a command line.
 3. Run mvn validate.
-4. run mvn clean install.
+4. Run mvn clean install.
 
 ## Executing
 
