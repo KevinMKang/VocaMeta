@@ -6,7 +6,7 @@
     <groupId>KMFK</groupId>
     <artifactId>VocaMeta</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>VocaMeta</name>
 
     <repositories>
@@ -47,7 +47,7 @@
     <build>
         <resources>
             <resource>
-                <directory>lib</directory>
+                <directory>src/main/resources/</directory>
             </resource>
         </resources>
         <plugins>
@@ -100,6 +100,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
                 <configuration>
                     <archive>
                         <manifest>

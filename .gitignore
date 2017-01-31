@@ -2,3 +2,5 @@
 target/
 .idea/
 VocaMeta.iml
+bundles/
+icon.xcf

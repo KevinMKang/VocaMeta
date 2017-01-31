@@ -5,12 +5,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+
 import classes.Items;
 import gui.*;
 import org.apache.commons.io.FileUtils;
 import parsers.NameParser;
 import tools.JSONHandler;
 import tools.MP3Tagger;
+
 import javax.swing.*;
 
 public class Main extends JFrame{
@@ -50,7 +53,7 @@ public class Main extends JFrame{
                         log.addText(fileButton.getFileName()+ " tagged succesfully!.\n");
 
                     }else{
-                        //log.addText("Failed to tag " + fileButton.getFileName() +". Try renaming the file?\n");
+                        log.addText("Failed to tag " + fileButton.getFileName() +". Try renaming the file?\n");
                     }
                     log.updateArea();
                 }
@@ -61,7 +64,8 @@ public class Main extends JFrame{
                         i-=1;
                     }
                 }
-
+                log.addText("Finished Tagging.");
+                log.updateArea();
                 revalidate();
                 repaint();
                 started = false;
@@ -89,19 +93,31 @@ public class Main extends JFrame{
         log = new TextLog();
         bPanel = new ButtonPanel();
 
-
-
-        JLabel dragInfo = new JLabel("Drag and Drop your files/folders below. Click to remove them.");
-        dragInfo.setHorizontalTextPosition(SwingConstants.CENTER);
-
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.add(lPanel);
-        panel.add(dragInfo);
         panel.add(bPanel);
         panel.add(log);
-        panel.add(start);
+
+        JPanel tmp = new JPanel();
+        tmp.add(start, BorderLayout.SOUTH);
+        panel.add(tmp);
+
         panel.setPreferredSize(new java.awt.Dimension(800, 600));
+
+
+
+        //URL iconURL = ClassLoader.getSystemResource(/"res/icon.png");
+        URL iconURL = getClass().getResource("/icon.png");
+        ImageIcon icon = new ImageIcon(iconURL);
+        setIconImage(icon.getImage());
+        /*
+        try {
+            setIconImage(ImageIO.read(new File("res/icon.png")));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        */
         getContentPane().add(panel);
         setVisible(true);
         setTitle("VocaMeta");

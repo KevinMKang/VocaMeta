@@ -2,9 +2,7 @@ package gui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
 
 /**
  * Created by Kevin on 1/16/2017.

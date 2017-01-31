@@ -1,6 +1,5 @@
 package gui;
 
-import main.Main;
 import tools.MP3Tagger;
 
 import javax.swing.*;
@@ -8,9 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
 
 /**
  * Created by KMFK on 2017-01-23.
@@ -67,10 +64,14 @@ public class ButtonPanel extends JPanel {
     public ButtonPanel(){
         setLayout(new BorderLayout());
 
+        JLabel dragInfo = new JLabel("Drag and Drop your files/folders below. Click to remove them.");
+        dragInfo.setHorizontalTextPosition(SwingConstants.CENTER);
+        add(dragInfo, BorderLayout.NORTH);
+
         mainPanel = new JPanel();
 
 
-        fCButton = new JButton("Open");
+        fCButton = new JButton("Open File/Folder");
         fCButton.addActionListener(fileChooseListener);
         add(fCButton,BorderLayout.SOUTH);
 

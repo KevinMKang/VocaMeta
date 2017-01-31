@@ -3,6 +3,7 @@ package tools;
 import classes.Items;
 import classes.Metadata;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -21,42 +22,41 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * Created by KMFK on 2017-01-13.
  * Uses JAudioTagger to tag given mp3s and to save them. Also checks whether the given data is correct or not.
  */
 public class MP3Tagger {
 
-    private static final String MUSIC_EXTS = "([^.]+(\\.(?i)(mp3|wav|m4a))$)";
+    //private static final String MUSIC_EXTS = "([^.]+(\\.(?i)(mp3|wav|m4a))$)";
+    private static final String[] MUSIC_EXTS = {"mp3","wav","m4a"};
 
-    private static Pattern pattern = Pattern.compile(MUSIC_EXTS);
-    private static Matcher matcher;
+    //private static Pattern pattern = Pattern.compile(MUSIC_EXTS);
+    //private static Matcher matcher;
 
     private MP3Tagger(){}
 
+    private static boolean check_ext(String ext){
+        for(String s: MUSIC_EXTS){
+            if(ext.equals(s)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static File[] parseFile(File file){
+
         ArrayList<File> output = new ArrayList<>();
         if(!file.isDirectory()){
-
-            matcher = pattern.matcher(file.getName());
-            if(matcher.matches()){
+            if(check_ext(FilenameUtils.getExtension(file.getName())))
                 output.add(file);
-            }
         }
         else {
             File[] files = file.listFiles();
             for (File i : files) {
-                if(i.isDirectory()){
-                    for(File inDir : parseFile(i)){
-                        output.add(inDir);
-                    }
-                }
-                matcher = pattern.matcher(i.getName());
-                if (matcher.matches()) {
-                    output.add(i);
+                for(File inDir: parseFile(i)){
+                    output.add(inDir);
                 }
             }
         }
@@ -70,6 +70,7 @@ public class MP3Tagger {
         AudioFile song = null;
         try {
             song = AudioFileIO.read(songFile);
+
 
 
         } catch (TagException e) {
