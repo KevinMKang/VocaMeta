@@ -8,6 +8,15 @@ public class Metadata {
     public String artistString;
     public String publishDate;
     public int lengthSeconds;
+    public String defaultName;
+    public String largeThumbUrl = "";
+    public String hqresThumbUrl="";
+    public PVData[] pvs;
+    public WebLink[] webLinks;
+    public String getLargeThumbUrl() {
+        return largeThumbUrl;
+    }
+
 
     public String getThumbUrl() {
         return thumbUrl;

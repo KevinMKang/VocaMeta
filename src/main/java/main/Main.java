@@ -6,14 +6,12 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-
 import classes.Items;
 import gui.*;
 import org.apache.commons.io.FileUtils;
 import parsers.NameParser;
 import tools.JSONHandler;
 import tools.MP3Tagger;
-
 import javax.swing.*;
 
 public class Main extends JFrame{
@@ -64,7 +62,7 @@ public class Main extends JFrame{
                         i-=1;
                     }
                 }
-                log.addText("Finished Tagging.");
+                log.addText("Finished Tagging.\n");
                 log.updateArea();
                 revalidate();
                 repaint();
@@ -78,6 +76,7 @@ public class Main extends JFrame{
         String fileName = NameParser.parseName(file.getName());
         String json = JSONHandler.requestJSONVocaDB(fileName, lPanel.getLanguageSetting());
         Items items = JSONHandler.parseJSONVocaDB(json);
+
         return MP3Tagger.tagMP3(items, file);
     }
 
@@ -104,8 +103,6 @@ public class Main extends JFrame{
         panel.add(tmp);
 
         panel.setPreferredSize(new java.awt.Dimension(800, 600));
-
-
 
         //URL iconURL = ClassLoader.getSystemResource(/"res/icon.png");
         URL iconURL = getClass().getResource("/icon.png");
