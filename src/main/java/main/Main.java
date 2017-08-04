@@ -4,11 +4,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import classes.Items;
 import gui.*;
-import org.apache.commons.io.FileUtils;
 import parsers.NameParser;
 import tools.JSONHandler;
 import tools.MP3Tagger;
@@ -19,7 +17,7 @@ public class Main extends JFrame{
     private JButton start;
     private LanguagePanel lPanel;
     private TextLog log;
-    private ButtonPanel bPanel;
+    private FilePanel bPanel;
 
     private boolean started;
 
@@ -39,7 +37,7 @@ public class Main extends JFrame{
     ActionListener startListener = new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e) {
-            log.addText("Starting tagging process.\n");
+            log.addText("Starting tagging process.");
             log.updateArea();
             if (!started) {
                 started = true;
@@ -48,12 +46,16 @@ public class Main extends JFrame{
 
                     if(tagSingleFile(fileButton.getFile())==0) {
                         fileButton.markDone();
-                        log.addText(fileButton.getFileName()+ " tagged succesfully!.\n");
+                        log.addText(fileButton.getFileName()+ " tagged succesfully!");
+
 
                     }else{
-                        log.addText("Failed to tag " + fileButton.getFileName() +". Try renaming the file?\n");
+                        log.addText("Failed to tag " + fileButton.getFileName() +". Try renaming the file?");
+
                     }
                     log.updateArea();
+                    revalidate();
+                    repaint();
                 }
 
                 for(int i = 0; i < bPanel.getFileButtons().size(); i++){
@@ -62,7 +64,7 @@ public class Main extends JFrame{
                         i-=1;
                     }
                 }
-                log.addText("Finished Tagging.\n");
+                log.addText("Finished Tagging.");
                 log.updateArea();
                 revalidate();
                 repaint();
@@ -74,14 +76,22 @@ public class Main extends JFrame{
     // Tags a single File, starting from an API call to VocaDB.
     public int tagSingleFile(File file){
         String fileName = NameParser.parseName(file.getName());
-        String json = JSONHandler.requestJSONVocaDB(fileName, lPanel.getLanguageSetting());
-        Items items = JSONHandler.parseJSONVocaDB(json);
-
+        Items items = JSONHandler.requestJSONVocaDB(fileName, lPanel.getLanguageSetting());
         return MP3Tagger.tagMP3(items, file);
     }
 
     //Main function
     public Main(){
+
+        try{
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()){
+                if("Nimbus".equals(info.getName())){
+                    UIManager.setLookAndFeel(info.getClassName());
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
         started = false;
 
@@ -90,32 +100,26 @@ public class Main extends JFrame{
 
         lPanel = new LanguagePanel();
         log = new TextLog();
-        bPanel = new ButtonPanel();
+        bPanel = new FilePanel();
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.add(lPanel);
-        panel.add(bPanel);
-        panel.add(log);
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.add(lPanel);
+        mainPanel.add(bPanel);
+        mainPanel.add(log);
 
-        JPanel tmp = new JPanel();
-        tmp.add(start, BorderLayout.SOUTH);
-        panel.add(tmp);
+        JPanel startPanel = new JPanel();
+        startPanel.add(start, BorderLayout.SOUTH);
+        mainPanel.add(startPanel);
 
-        panel.setPreferredSize(new java.awt.Dimension(800, 600));
+        mainPanel.setPreferredSize(new java.awt.Dimension(800, 600));
 
-        //URL iconURL = ClassLoader.getSystemResource(/"res/icon.png");
+
         URL iconURL = getClass().getResource("/icon.png");
         ImageIcon icon = new ImageIcon(iconURL);
         setIconImage(icon.getImage());
-        /*
-        try {
-            setIconImage(ImageIO.read(new File("res/icon.png")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        */
-        getContentPane().add(panel);
+
+        getContentPane().add(mainPanel);
         setVisible(true);
         setTitle("VocaMeta");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -123,15 +127,6 @@ public class Main extends JFrame{
     }
 
     public static void main(String[] args){
-
-        File tempDir = new File("temp");
-        tempDir.mkdir();
         new Main();
-
-        try {
-            FileUtils.deleteDirectory(tempDir);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

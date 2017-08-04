@@ -12,10 +12,7 @@ import org.jaudiotagger.audio.exceptions.CannotReadException;
 import org.jaudiotagger.audio.exceptions.CannotWriteException;
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
-import org.jaudiotagger.tag.FieldDataInvalidException;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.*;
 import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.images.ArtworkFactory;
 import javax.imageio.ImageIO;
@@ -32,15 +29,9 @@ import java.util.List;
  */
 public class MP3Tagger {
 
-    //private static final String MUSIC_EXTS = "([^.]+(\\.(?i)(mp3|wav|m4a))$)";
     private static final String[] MUSIC_EXTS = {"mp3","wav","m4a", "wma"};
-    private static final String[] validSources = {"Vocaloid Wiki", "Vocaloid Lyrics Wiki"};
+    private static final String[] validSources = {"Vocaloid Wiki"};
     private static final String[] requestBases = {"http://vocaloid.wikia.com", "http://vocaloidlyrics.wikia.com"};
-    private static final String hqThumbnailURL = "https://img.youtube.com/vi/%s/hqdefault.jpg";
-    private static final String maxresThumbnailURL = "https://img.youtube.com/vi/%s/maxresdefault.jpg";
-
-    //private static Pattern pattern = Pattern.compile(MUSIC_EXTS);
-    //private static Matcher matcher;
 
     private MP3Tagger(){}
 
@@ -53,13 +44,13 @@ public class MP3Tagger {
         return false;
     }
 
-
-
     private static boolean downloadThumbnail(Metadata metadata, File tempThumb) throws IOException{
         for(WebLink link : metadata.webLinks){
             if(Arrays.asList(validSources).contains(link.description)){
                 String title = link.url.substring(link.url.lastIndexOf('/')+1);
-                String imgURL = JSONHandler.requestWikiGetThumbURL(title, requestBases[Arrays.asList(validSources).indexOf(link.description)]);
+                String imgURL = JSONHandler.requestWikiGetThumbURL(title, requestBases[Arrays.asList(validSources).indexOf(link.description)],1,1);
+                if(imgURL.equals(""))
+                    continue;
                 BufferedImage image;
                 image = ImageIO.read(new URL(imgURL));
                 ImageIO.write(image, "png", tempThumb);
@@ -71,7 +62,9 @@ public class MP3Tagger {
             if(Arrays.asList(validSources).contains(link.description)){
 
                     String titleAttempt = metadata.defaultName + "_(" + metadata.name +")";
-                    String imgURL = JSONHandler.requestWikiGetThumbURL(titleAttempt, requestBases[0]);
+                    String imgURL = JSONHandler.requestWikiGetThumbURL(titleAttempt, requestBases[0],1,1);
+                    if(imgURL.equals(""))
+                        continue;
                     BufferedImage image;
                     image = ImageIO.read(new URL(imgURL));
                     ImageIO.write(image, "png", tempThumb);
@@ -119,29 +112,23 @@ public class MP3Tagger {
 
     public static int tagMP3 (Items metadatas, File songFile){
 
+        TagOptionSingleton.getInstance().setId3v2PaddingWillShorten(true);
+
+
+
         Metadata md = null;
 
         AudioFile song = null;
         try {
             song = AudioFileIO.read(songFile);
 
-
-
-        } catch (TagException e) {
+        } catch (CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException| IOException e) {
             e.printStackTrace();
-        } catch (ReadOnlyFileException e) {
-            e.printStackTrace();
-        } catch (CannotReadException e) {
-            e.printStackTrace();
-        } catch (InvalidAudioFrameException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            return 1;
         }
-
         for(Metadata mData : metadatas.items){
 
-            if(song.getAudioHeader().getTrackLength() > (mData.getLengthSeconds()-5) && song.getAudioHeader().getTrackLength() < (mData.getLengthSeconds()+5)){
+            if(Math.abs(song.getAudioHeader().getTrackLength()-(mData.lengthSeconds)) < 5){
                 md = mData;
             }
         }
@@ -151,25 +138,32 @@ public class MP3Tagger {
             else
                 return 1;
         }
-        song.setTag(song.createDefaultTag());
+
+        if(song.getTag()==null)
+            song.setTag(song.createDefaultTag());
         Tag tag = song.getTag();
+
         try {
-            //tag.addField(FieldKey.ARTIST, md.getArtistString());
-            tag.addField(FieldKey.TITLE, md.getName());
-            tag.addField(FieldKey.YEAR, md.getPublishDate());
-            //tag.setField(FieldKey.ARTIST, md.getArtistString());
-            tag.setField(FieldKey.TITLE, md.getName());
-            tag.setField(FieldKey.YEAR, md.getPublishDate());
-            tag.addField(FieldKey.ALBUM, md.getName());
-            //tag.addField(FieldKey.ALBUM_ARTIST, md.getArtistString());
-            tag.setField(FieldKey.ALBUM, md.getName());
-            //tag.setField(FieldKey.ALBUM_ARTIST, md.getArtistString());
+            /*
+            tag.addField(FieldKey.ARTIST, md.artistString);
+            tag.addField(FieldKey.TITLE, md.name);
+            tag.addField(FieldKey.YEAR, md.getYear());
+            tag.addField(FieldKey.ALBUM, md.name);
+            tag.addField(FieldKey.ALBUM_ARTIST, md.artistString);
+            */
+
+            tag.setField(FieldKey.ARTIST, md.artistString);
+            tag.setField(FieldKey.TITLE, md.name);
+            tag.setField(FieldKey.YEAR, md.getYear());
+            tag.setField(FieldKey.ALBUM, md.name);
+            tag.setField(FieldKey.ALBUM_ARTIST, md.artistString);
 
             File tempThumb = new File("temp");
 
             if(downloadThumbnail(md, tempThumb)) {
                 Artwork cover = ArtworkFactory.createArtworkFromFile(new File("temp"));
-                tag.addField(cover);
+                //tag.addField(cover);
+                tag.deleteArtworkField();
                 tag.setField(cover);
             }
             FileUtils.deleteQuietly(new File("temp"));
@@ -178,16 +172,11 @@ public class MP3Tagger {
             song.commit();
 
 
-        } catch (FieldDataInvalidException e) {
+        } catch (FieldDataInvalidException | CannotWriteException | IOException e) {
             e.printStackTrace();
-        } catch (CannotWriteException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            return 1;
         }
 
         return 0;
     }
-
-
 }

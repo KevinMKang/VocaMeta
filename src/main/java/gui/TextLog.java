@@ -19,9 +19,9 @@ public class TextLog extends JPanel{
         setLayout(new BoxLayout(this,BoxLayout.LINE_AXIS));
 
         log = new JTextArea(0,1);
-        log.setAutoscrolls(true);
         log.setText("VocaMeta started.\n");
         log.setEditable(false);
+
         //log.setBackground(Color.white);
         //log.setOpaque(true);
 
@@ -33,13 +33,12 @@ public class TextLog extends JPanel{
             }
         });
 
-
-
         JScrollPane scroll = new JScrollPane(log);
         scroll.setBorder(BorderFactory.createEmptyBorder());
-        scroll.setAutoscrolls(true);
         add(scroll);
         add(clear);
+        DefaultCaret caret = (DefaultCaret)log.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
 
         setBackground(Color.white);
@@ -51,17 +50,16 @@ public class TextLog extends JPanel{
         //setMaximumSize(new Dimension(800, 200));
         scroll.setMinimumSize(new Dimension(0, 150));
         scroll.setPreferredSize(new Dimension(600, 150));
-        DefaultCaret caret = (DefaultCaret)log.getCaret();
-        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
     }
 
     public void addText(String text){
-        log.append(text);
+        log.append(text+"\n");
         revalidate();
         repaint();
     }
 
     public void updateArea(){
         log.update(log.getGraphics());
+        log.setCaretPosition(log.getDocument().getLength());
     }
 }

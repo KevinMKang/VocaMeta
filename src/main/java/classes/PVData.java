@@ -7,4 +7,6 @@ public class PVData {
     public String pvId;
     public String pvType;
 
+    private PVData(){};
+
 }

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 /**
  * Created by KMFK on 2017-01-23.
  */
-public class ButtonPanel extends JPanel {
+public class FilePanel extends JPanel {
 
     private final JFileChooser fChooser = new JFileChooser();
     private JPanel mainPanel;
@@ -20,16 +20,15 @@ public class ButtonPanel extends JPanel {
     private ArrayList<File> fileListing;
     private ArrayList<FileButton> buttonListing;
 
-    private JButton fCButton;
+    JButton fCButton;
 
-    ActionListener fileChooseListener = new ActionListener(){
+    private ActionListener fileChooseListener = new ActionListener(){
         @Override
         public void actionPerformed(ActionEvent e){
-            int returnVal = fChooser.showOpenDialog(ButtonPanel.this);
+            int returnVal = fChooser.showOpenDialog(FilePanel.this);
 
             if(returnVal == JFileChooser.APPROVE_OPTION){
                 File file = fChooser.getSelectedFile();
-                System.out.println(file.getName());
                 File[] temp = {file};
                 processFile(temp);
             }
@@ -61,7 +60,7 @@ public class ButtonPanel extends JPanel {
         }
     }
 
-    public ButtonPanel(){
+    public FilePanel(){
         setLayout(new BorderLayout());
 
         JLabel dragInfo = new JLabel("Drag and Drop your files/folders below. Click to remove them.");
